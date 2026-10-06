@@ -8,7 +8,6 @@
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 BOLD='\033[1m'
 NC='\033[0m'
@@ -31,8 +30,7 @@ record_check() {
 echo -e "${BOLD}${CYAN}==============================================================${NC}"
 echo -e "${BOLD}${CYAN}       Ceph Lab: Minimal Base VM Preparation (Outline Spec)   ${NC}"
 echo -e "${BOLD}${CYAN}==============================================================${NC}"
-echo -e "Host: $(hostname) | Date: $(date)"
-echo ""
+echo -e "Host: $(hostname) | Date: $(date)\n"
 
 if [ "$EUID" -ne 0 ]; then
     echo -e "${RED}[ERROR] Please run this script as root (sudo bash prepare-vm.sh)${NC}"
@@ -44,7 +42,10 @@ fi
 # ------------------------------------------------------------------------------
 echo -e "${BOLD}[1/4] Running apt-get update & upgrade...${NC}"
 export DEBIAN_FRONTEND=noninteractive
-if apt-get update -y > /dev/null 2>&1 && apt-get upgrade -y > /dev/null 2>&1; then
+export NEEDRESTART_MODE=a
+
+apt-get -o DPkg::Lock::Timeout=60 update -y
+if apt-get -o DPkg::Lock::Timeout=60 -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y; then
     record_check "APT Update & Upgrade" "PASS"
 else
     record_check "APT Update & Upgrade" "FAIL"
